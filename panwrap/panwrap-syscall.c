@@ -261,8 +261,6 @@ static void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
 	if(!mem) {
 		panwrap_log("Unmapped GPU mem %llx\n", gpu_addr);
 
-		/* TODO: Call mmap ourselves! */
-
 		return NULL;
 	}
 
@@ -273,11 +271,6 @@ static void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
 	}
 
 	return mem->addr + (gpu_addr - mem->gpu_va);
-}
-
-static void relax_mapped_gpu(void *map)
-{
-	/* TODO: munmap if the mapping was ours; see above TODO */
 }
 
 static inline const char *

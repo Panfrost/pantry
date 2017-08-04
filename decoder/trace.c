@@ -36,8 +36,6 @@ static void assert_gpu_same(uint64_t addr, size_t s, uint8_t *synth)
 			break;
 		}
 	}
-
-	relax_mapped_gpu(buffer);
 }
 
 static void assert_gpu_zeroes(uint64_t addr, size_t s) 
@@ -67,7 +65,6 @@ static void quick_dump_gpu(uint64_t addr, size_t s)
 	}
 
 	panwrap_log_hexdump_trimmed(buf, s, "\t\t");
-	relax_mapped_gpu(buf);
 }
 
 #include "chai-notes.h"
@@ -126,7 +123,6 @@ static void chai_trace_fbd(uint32_t fbd)
 	panwrap_log("unk2\n");
 	buf = fetch_mapped_gpu(mfbd->unknown2, 64);
 	panwrap_log_hexdump_trimmed(buf, 64, "\t\t");
-	relax_mapped_gpu(buf);
 
 	assert_gpu_zeroes(mfbd->block2[0], 64);
 	assert_gpu_zeroes(mfbd->block2[1], 64);
@@ -156,7 +152,6 @@ static void chai_trace_fbd(uint32_t fbd)
 	panwrap_log("ugan %llX\n", mfbd->unknown_gpu_addressN);
 	buf = fetch_mapped_gpu(mfbd->unknown_gpu_addressN, 64);
 	panwrap_log_hexdump_trimmed(buf, 64, "\t\t");
-	relax_mapped_gpu(buf);
 
 	panwrap_log("unk1 %X, b1 %llX, b2 %llX, unk2 %llX, unk3 %llX, blah %llX\n",
 			mfbd->unknown1,
@@ -191,13 +186,9 @@ static void chai_trace_fbd(uint32_t fbd)
 		quick_dump_gpu(buf32[27], 64);
 		quick_dump_gpu(buf32[28], 64);
 		quick_dump_gpu(buf32[31], 64);
-
-		relax_mapped_gpu(buf32);
 	}
 
 	quick_dump_gpu(mfbd->block3[16], 128);
-
-	relax_mapped_gpu(mfbd);
 }
 
 static void chai_trace_vecN(float *p, size_t count)
@@ -252,8 +243,6 @@ static void chai_trace_attribute(uint64_t address)
 	}
 
 	panwrap_log("}\n");
-
-	relax_mapped_gpu(vb);
 }
 
 static void chai_trace_hw_chain(uint64_t chain)
@@ -290,7 +279,6 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 		s = fetch_mapped_gpu(payload, sizeof(*s));
 		panwrap_log("set value -> %llX (%llX)\n", s->out, s->unknown);
-		relax_mapped_gpu(s);
 		break;
 	}
 
@@ -329,9 +317,6 @@ static void chai_trace_hw_chain(uint64_t chain)
 		free(fn);
 		fclose(fp);
 		
-		relax_mapped_gpu(shader);
-		relax_mapped_gpu(i_shader);
-
 		/* Trace attribute based on metadata */
 		uint64_t s = v->attribute_meta;
 
@@ -347,8 +332,6 @@ static void chai_trace_hw_chain(uint64_t chain)
 			chai_trace_attribute(v->attributes + ATTRIBUTE_NO(*attr_meta) * sizeof(struct attribute_buffer));
 
 			s += sizeof(attribute_meta_t);
-
-			relax_mapped_gpu(attr_meta);
 		}
 
 		if (h->job_type == JOB_TYPE_TILER)
@@ -399,7 +382,6 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 				panwrap_log("---\n");
 				panwrap_log_hexdump_trimmed(sbuf, 64, "\t\t");
-				relax_mapped_gpu(sbuf);
 			}
 
 			if (addr == 1) {
@@ -408,7 +390,6 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 				panwrap_log("--- %llX\n", sub);
 				panwrap_log_hexdump_trimmed(sbuf, 64, "\t\t");
-				relax_mapped_gpu(sbuf);
 			}
 
 			if(addr == 4 && h->job_type == JOB_TYPE_TILER) {
@@ -423,14 +404,10 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 				printf("\b\b);\n");
 			}
-
-
-			relax_mapped_gpu(buf);
 		}
 
 		panwrap_log_hexdump_trimmed((uint8_t *) v->block2, sizeof(v->block2), "\t\t");
 
-		relax_mapped_gpu(v);
 		break;
 	}
 
@@ -456,7 +433,6 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 		chai_trace_fbd(f->fragment_fbd);
 
-		relax_mapped_gpu(f);
 		break;
 	}
 
@@ -467,15 +443,12 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 		gen_pay = fetch_mapped_gpu(payload, 256);
 		panwrap_log_hexdump_trimmed(gen_pay, 256, "\t\t");
-		relax_mapped_gpu(gen_pay);
 	}
 	}
 
 	next = h->job_descriptor_size
 		? h->next_job._64
 		: h->next_job._32;
-
-	relax_mapped_gpu(h);
 
 	/* Traverse the job chain */
 	if (next)
@@ -503,8 +476,6 @@ static void chai_trace_atom(const struct mali_jd_atom_v2 *v)
 				payload->hierarchy_default_weight,
 				payload->tiler_core_req,
 				payload->fragment_core_req);
-
-			relax_mapped_gpu(payload);
 		} else  {
 			/* TODO: Soft job decoding */
 			panwrap_log("Unknown soft job\n");
