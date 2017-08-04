@@ -514,9 +514,9 @@ ioctl_decode_pre_stream_create(unsigned long int request, void *ptr)
 	panwrap_log("\tname = %s\n", args->name);
 }
 
-/* TODO: Link with the chai tracer correctly */
+/* TODO: Decode offline */
 #define __PANWRAP
-#include "../../chai/src/trace.c"
+#include <pantrace.h>
 
 static inline void
 ioctl_decode_pre_job_submit(unsigned long int request, void *ptr)
