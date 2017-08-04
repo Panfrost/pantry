@@ -13,7 +13,14 @@
  *
  */
 
-#include "shim.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <pandriver.h>
+#include <pantrace.h>
+
+/* TODO: Remove this dependency */
+
+#include "../panwrap/panwrap.h"
 
 /* Assert that synthesised command stream is bit-identical with trace */
 
@@ -455,7 +462,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 		chai_trace_hw_chain(next);
 }
 
-static void chai_trace_atom(const struct mali_jd_atom_v2 *v)
+void chai_trace_atom(const struct mali_jd_atom_v2 *v)
 {
 	if (v->core_req & MALI_JD_REQ_SOFT_JOB) {
 		if (v->core_req & MALI_JD_REQ_SOFT_REPLAY) {
