@@ -1,18 +1,35 @@
+/*
+ * © Copyright 2017 The BiOpenly Community
+ *
+ * This program is free software and is provided to you under the terms of the
+ * GNU General Public License version 2 as published by the Free Software
+ * Foundation, and any use by you of this program is subject to the terms
+ * of such GNU license.
+ *
+ * A copy of the licence is included with the program, and can also be obtained
+ * from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ *
+ */
+
+#ifndef __PANDRIVER_H__
+#define __PANDRIVER_H__
+
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <mali-ioctl.h>
+#include <jobs.h>
+#include <chai-notes.h>
+
 /* TODO: Find non-hackish memory allocator */
 
 void init_cbma(int fd);
 void* galloc(size_t sz);
 void gfree(void* ptr);
-/* The shim requires assert support, with its own fancy name. */
-
-#include <assert.h>
-#define CDBG_ASSERT assert
 
 /* Integer types used in the shim. */
-
-#include <stddef.h>
-#include <stdint.h>
-#include <mali-ioctl.h>
 
 typedef int8_t s8;
 typedef int16_t s16;
@@ -31,7 +48,7 @@ typedef uint64_t u64;
 #define PAGE_SIZE 	(1 << PAGE_SHIFT)
 #define PAGE_MASK 	(~(PAGE_SIZE - 1))
 
-/* Include definitions for thin chai wrappers */
+/* Thin wrappers around ioctls */
 
 int open_kernel_module();
 uint64_t alloc_gpu_pages(int fd, int pages, int e_flags);
@@ -43,13 +60,8 @@ void flush_job_queue(int fd);
 uint8_t* mmap_gpu(int fd, uint64_t addr, int page_count);
 void stream_create(int fd, char *stream);
 void query_gpu_props(int fd);
-#include "shim.h"
-#include "jobs.h"
-#include "memory.h"
-#include "chai-notes.h"
 
-#include <stddef.h>
-#include <stdbool.h>
+/* Raw command stream generation */
 
 struct job_descriptor_header* set_value_helper(uint64_t out);
 
@@ -75,3 +87,5 @@ uint32_t job_chain_vertex_tiler(int fd,
 
 void job_chain_replay(int fd, uint32_t tiler_jc, uint32_t fragment_jc,
 		uint64_t heap_free_address, uint64_t framebuffer);
+
+#endif
