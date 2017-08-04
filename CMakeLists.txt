@@ -38,7 +38,7 @@ c_attribute_required(format
 c_function_required(asprintf)
 
 include_directories("include")
-add_subdirectory(src)
+add_subdirectory(prototype)
 add_subdirectory(panwrap)
 
 # vim: tabstop=4 softtabstop=4 shiftwidth=4 expandtab :
