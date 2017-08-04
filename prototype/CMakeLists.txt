@@ -1,5 +1,8 @@
 project(prototype)
 
-set(SRCS prototype.c)
+# TODO: Include driver correctly
 
-add_library(prototype SHARED ${SRCS})
+set(SRCS prototype.c ../driver/shim.c ../driver/memory.c
+	../driver/synthesise)
+
+add_executable(prototype ${SRCS})
