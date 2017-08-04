@@ -249,7 +249,7 @@ static struct mapped_memory *find_gpu_mapped_mem(uint64_t addr)
 	return NULL;
 }
 
-static void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
+void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
 {
 	if(!gpu_addr) {
 		panwrap_log("Tried to dereference GPU null!\n");
