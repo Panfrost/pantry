@@ -37,6 +37,8 @@ c_attribute_required(format
 
 c_function_required(asprintf)
 
+option(PRECOMPILED_SHADER "whether to use precompiled shaders" 0)
+
 include_directories("include")
 add_subdirectory(prototype)
 add_subdirectory(panwrap)
