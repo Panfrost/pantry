@@ -3,7 +3,7 @@ project(prototype)
 # TODO: Include driver correctly
 
 set(SRCS prototype.c ../driver/shim.c ../driver/memory.c
-	../driver/synthesise)
+	../driver/synthesise.c)
 
 add_executable(prototype ${SRCS})
 

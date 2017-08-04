@@ -83,7 +83,7 @@ uint64_t alloc_gpu_pages(int fd, int pages, int e_flags)
 	/* Only necessary when we report old versions */
 
 	if(e_flags & MALI_MEM_SAME_VA)  {
-		return (uint32_t) mmap(NULL, pages << PAGE_SHIFT, PROT_READ | PROT_WRITE, MAP_SHARED, fd, alloc.gpu_va);
+		return (uint32_t) mmap64(NULL, pages << PAGE_SHIFT, PROT_READ | PROT_WRITE, MAP_SHARED, fd, alloc.gpu_va);
 	} else {
 		return alloc.gpu_va;
 	}
@@ -159,7 +159,7 @@ void submit_job(int fd, struct mali_jd_atom_v2 atom)
 
 uint8_t* mmap_gpu(int fd, uint64_t addr, int page_count)
 {
-	uint8_t* buffer = mmap(NULL, page_count << PAGE_SHIFT,
+	uint8_t* buffer = mmap64(NULL, page_count << PAGE_SHIFT,
 				PROT_READ | PROT_WRITE, MAP_SHARED,
 				fd, addr);
 
