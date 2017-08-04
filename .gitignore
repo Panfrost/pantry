@@ -48,6 +48,7 @@ CTestTestfile.cmake
 *.i*86
 *.x86_64
 *.hex
+prototype/prototype
 
 # Debug files
 *.dSYM/
