@@ -11,15 +11,13 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <pandriver.h>
+
 #ifdef __PANWRAP
 int ioctl(int fd, int request, ...);
 #else
 #include <sys/ioctl.h>
 #endif
-
-#include "shim.h"
-
-#include <mali-ioctl.h>
 
 #define m_ioctl(fd, data, ioc) \
 	data.header.id = ((_IOC_TYPE(ioc) & 0xF) << 8) | _IOC_NR(ioc); \

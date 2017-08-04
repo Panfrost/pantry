@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 #include <memory.h>
-#include <mali-ioctl.h>
-#include "shim.h"
+#include <pandriver.h>
 
 #define CBMA_PAGES 1024
 uint32_t cbma_bottom;

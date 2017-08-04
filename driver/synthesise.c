@@ -13,11 +13,9 @@
  *
  */
 
-#include "synthesise.h"
-#include <mali-ioctl.h>
-
 #include <stdlib.h>
 #include <memory.h>
+#include <pandriver.h>
 
 #define SV_OFFSET (0x4000)
 

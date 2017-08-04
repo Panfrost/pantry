@@ -5,8 +5,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-#include "shim.h"
-#include "synthesise.h"
+#include <pandriver.h>
 
 /* Provides sample_fragment and sample_vertex */
 #include "../../shader_hex.h"
