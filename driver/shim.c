@@ -21,7 +21,7 @@ int ioctl(int fd, int request, ...);
 
 #define m_ioctl(fd, data, ioc) \
 	data.header.id = ((_IOC_TYPE(ioc) & 0xF) << 8) | _IOC_NR(ioc); \
-	if(ioctl(fd, ioc, &data)) { \
+	if (ioctl(fd, ioc, &data)) { \
 		printf("Bad ioctl %d (%s)\n", ioc, strerror(errno)); \
 		exit(1); \
 	}
@@ -30,7 +30,7 @@ int open_kernel_module()
 {
 	int fd = open("/dev/mali0", O_RDWR | O_CLOEXEC);
 
-	if(fd == -1) {
+	if (fd == -1) {
 		printf("Failed to open /dev/mali0\n");
 		return 1;
 	}
@@ -49,7 +49,7 @@ int open_kernel_module()
 	uint8_t *mtp = mmap(NULL, PAGE_SIZE, PROT_NONE, MAP_SHARED, fd,
 				MALI_MEM_MAP_TRACKING_HANDLE);
 
-	if(mtp == MAP_FAILED) {
+	if (mtp == MAP_FAILED) {
 		printf("MP map failed (%s)\n", strerror(errno));
 		return -1;
 	}
@@ -82,7 +82,7 @@ uint64_t alloc_gpu_pages(int fd, int pages, int e_flags)
 
 	/* Only necessary when we report old versions */
 
-	if(e_flags & MALI_MEM_SAME_VA)  {
+	if (e_flags & MALI_MEM_SAME_VA)  {
 		return (uint32_t) mmap64(NULL, pages << PAGE_SHIFT, PROT_READ | PROT_WRITE, MAP_SHARED, fd, alloc.gpu_va);
 	} else {
 		return alloc.gpu_va;
@@ -139,7 +139,7 @@ int atom_queue_size = 0;
 
 void flush_job_queue(int fd)
 {
-	if(atom_queue_size) {
+	if (atom_queue_size) {
 		submit_job_internal(fd, atom_queue, atom_queue_size);
 		atom_queue_size = 0;
 	} else {
@@ -151,7 +151,7 @@ void submit_job(int fd, struct mali_jd_atom_v2 atom)
 {
 	memcpy(&atom_queue[atom_queue_size++], &atom, sizeof(atom));
 
-	if(atom_queue_size == ATOM_QUEUE_MAX)
+	if (atom_queue_size == ATOM_QUEUE_MAX)
 		flush_job_queue(fd);
 }
 
@@ -163,7 +163,7 @@ uint8_t* mmap_gpu(int fd, uint64_t addr, int page_count)
 				PROT_READ | PROT_WRITE, MAP_SHARED,
 				fd, addr);
 
-	if(buffer == MAP_FAILED) {
+	if (buffer == MAP_FAILED) {
 		printf("Buffer map failed (%s)\n", strerror(errno));
 		exit(1);
 	}

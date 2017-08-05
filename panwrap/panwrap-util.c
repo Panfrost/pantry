@@ -72,7 +72,7 @@ panwrap_log_hexdump(const void *data, size_t size, const char *indent)
 	char alpha[HEXDUMP_ROW_LEN + 1];
 	unsigned int i;
 
-	if(!data) {
+	if (!data) {
 		panwrap_log("NULL pointer dereference(hexdump)\n");
 		return;
 	}
@@ -129,7 +129,7 @@ panwrap_log_hexdump_trimmed(const void *data, size_t size, const char *indent)
 	if (!enable_hexdump_trimming)
 		goto out;
 
-	if(!data) {
+	if (!data) {
 		panwrap_log("NULL pointer dereference(hexdump)\n");
 		return;
 	}

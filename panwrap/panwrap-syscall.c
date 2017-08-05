@@ -251,21 +251,21 @@ static struct mapped_memory *find_gpu_mapped_mem(uint64_t addr)
 
 void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
 {
-	if(!gpu_addr) {
+	if (!gpu_addr) {
 		panwrap_log("Tried to dereference GPU null!\n");
 		return NULL;
 	}
 
 	struct mapped_memory *mem = find_gpu_mapped_mem(gpu_addr);
 
-	if(!mem) {
+	if (!mem) {
 		panwrap_log("Unmapped GPU mem %llx\n", gpu_addr);
 
 		return NULL;
 	}
 
 	/* Sanity bounds check */
-	if(gpu_addr - mem->gpu_va + sz > mem->length) {
+	if (gpu_addr - mem->gpu_va + sz > mem->length) {
 		panwrap_log("GPU memory overflow @ %llX\n", gpu_addr);
 		return NULL;
 	}
@@ -974,7 +974,7 @@ int ioctl(int fd, unsigned long request, ...)
 	header = ptr;
 
 	name = ioctl_get_info(request)->name;
-	if(!name)
+	if (!name)
 		name = "???";
 
 	if (!ptr) { /* All valid mali ioctl's should have a specified arg */

@@ -57,7 +57,7 @@ static void quick_dump_gpu(uint64_t addr, size_t s)
 {
 	uint8_t *buf;
 
-	if(!addr) {
+	if (!addr) {
 		panwrap_log("Null quick dump\n");
 		return;
 	}
@@ -66,7 +66,7 @@ static void quick_dump_gpu(uint64_t addr, size_t s)
 
 	panwrap_log("Quick GPU dump (%llX)\n", addr);
 
-	if(!buf) {
+	if (!buf) {
 		panwrap_log("Not found\n");
 		return;
 	}
@@ -181,7 +181,7 @@ static void chai_trace_fbd(uint32_t fbd)
 	panwrap_log("--- (seriously though) --- %X\n", mfbd->block3[4]);
 	buf32 = fetch_mapped_gpu(mfbd->block3[4], 128);
 
-	if(buf32) {
+	if (buf32) {
 		panwrap_log_hexdump_trimmed((uint8_t*) buf32, 128, "\t\t");
 
 		quick_dump_gpu(buf32[6], 64);
@@ -200,13 +200,13 @@ static void chai_trace_fbd(uint32_t fbd)
 
 static void chai_trace_vecN(float *p, size_t count)
 {
-	if(count == 1)
+	if (count == 1)
 		panwrap_log("\t<%f>,\n", p[0]);
-	else if(count == 2)
+	else if (count == 2)
 		panwrap_log("\t<%f, %f>,\n", p[0], p[1]);
-	else if(count == 3)
+	else if (count == 3)
 		panwrap_log("\t<%f, %f, %f>,\n", p[0], p[1], p[2]);
-	else if(count == 4)
+	else if (count == 4)
 		panwrap_log("\t<%f, %f, %f, %f>,\n", p[0], p[1], p[2], p[3]);
 	else
 		panwrap_log("Cannot print vec%d\n", count);
@@ -262,7 +262,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 	/* Trace descriptor */
 	h = fetch_mapped_gpu(chain, sizeof(*h));
 
-	if(!h) {
+	if (!h) {
 		panwrap_log("Failed to map the job chain %llX\n\n", chain);
 		return;
 	}
@@ -330,7 +330,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 		for(;;) {
 			attribute_meta_t *attr_meta = fetch_mapped_gpu(s, sizeof(attribute_meta_t));
 
-			if(!HAS_ATTRIBUTE(*attr_meta)) break;
+			if (!HAS_ATTRIBUTE(*attr_meta)) break;
 
 			panwrap_log("Attribute %llX (flags %llX)\n",
 					ATTRIBUTE_NO(*attr_meta),
@@ -399,7 +399,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 				panwrap_log_hexdump_trimmed(sbuf, 64, "\t\t");
 			}
 
-			if(addr == 4 && h->job_type == JOB_TYPE_TILER) {
+			if (addr == 4 && h->job_type == JOB_TYPE_TILER) {
 				__fp16 *uniforms = (__fp16*) buf;
 
 				printf("uniform vec4 u = vec4(");

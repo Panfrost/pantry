@@ -65,7 +65,7 @@ uint64_t make_mfbd(bool tiler, uint64_t heap_free_address, uint64_t scratchpad)
 	mfbd->blah = 0x1F00000000;
 	mfbd->unknown1 = 0x1600;
 
-	if(!tiler)
+	if (!tiler)
 		mfbd->unknown3 = 0xFFFFF8C0;
 
 	mfbd->block1[4] = 0x02D801C2;
@@ -224,7 +224,7 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 	struct shader_meta *s = (struct shader_meta*) payload.shader;
 	s->shader = import_shader(fd, shader, shader_size, tiler);
 
-	if(!tiler) {
+	if (!tiler) {
 		uint32_t ni[] = {
 			0x43200000, 0x42F00000, 0x3F000000, 0x00000000,
 			0x43200000, 0x42F00000, 0x3F000000, 0x00000000
@@ -233,7 +233,7 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 		memcpy((void*) payload.unknown2, ni, sizeof(ni));
 	}
 
-	if(tiler) {
+	if (tiler) {
 		/* Lose precision... on purpose? */
 		payload.unknown7 = (uint32_t) s->shader;
 	}
@@ -242,7 +242,7 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 
 	/* TODO: Decode me! */
 
-	if(tiler) {
+	if (tiler) {
 		s->unknown1 = 0x0007000000000000;
 		s->unknown2 = 0x0000000000020602;
 	} else {
@@ -265,7 +265,7 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 
 	memcpy((void*) payload.unknown6, pi, sizeof(pi));
 
-	if(tiler) {
+	if (tiler) {
 		uint32_t ni[] = {
 			0xFF800000, 0xFF800000,
 			0x7F800000, 0x7F800000,
@@ -292,7 +292,7 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 	unk5[0] = ((uint64_t) (tiler ? 0xDB : 0x7A) << 56) | writeBuffer | 1;
 	unk5[1] = 0x0000004000000010;
 
-	if(tiler) {
+	if (tiler) {
 		uint32_t ni[] = {
 			0x00000001, 0x00000000, 0x00070000, 0x00020602,
 			0x00000000, 0x00000000, 0x00000000, 0x3712FFFF,
@@ -324,7 +324,7 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 
 	/* Trap tiler job execution */
 
-	if(tiler) {
+	if (tiler) {
 		payload.shader = 0x5AB00A05;
 
 		/* Hit second */
