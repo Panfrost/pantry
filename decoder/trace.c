@@ -24,7 +24,7 @@
 
 /* Assert that synthesised command stream is bit-identical with trace */
 
-static void assert_gpu_same(uint64_t addr, size_t s, uint8_t *synth) 
+static void assert_gpu_same(uint64_t addr, size_t s, uint8_t *synth)
 {
 	uint8_t *buffer = fetch_mapped_gpu(addr, s);
 
@@ -45,7 +45,7 @@ static void assert_gpu_same(uint64_t addr, size_t s, uint8_t *synth)
 	}
 }
 
-static void assert_gpu_zeroes(uint64_t addr, size_t s) 
+static void assert_gpu_zeroes(uint64_t addr, size_t s)
 {
 	uint8_t *zero = calloc(s, 1);
 	printf("Zero address %LX\n", addr);
@@ -97,7 +97,7 @@ static char *chai_job_type_name(int type)
 	}
 }
 
-static char* chai_gl_mode_name(uint8_t b) 
+static char* chai_gl_mode_name(uint8_t b)
 {
 	switch (b) {
 		DEFINE_CASE(CHAI_POINTS)
@@ -180,7 +180,7 @@ static void chai_trace_fbd(uint32_t fbd)
 
 	panwrap_log("--- (seriously though) --- %X\n", mfbd->block3[4]);
 	buf32 = fetch_mapped_gpu(mfbd->block3[4], 128);
-	
+
 	if(buf32) {
 		panwrap_log_hexdump_trimmed((uint8_t*) buf32, 128, "\t\t");
 
@@ -200,7 +200,7 @@ static void chai_trace_fbd(uint32_t fbd)
 
 static void chai_trace_vecN(float *p, size_t count)
 {
-	if(count == 1) 
+	if(count == 1)
 		panwrap_log("\t<%f>,\n", p[0]);
 	else if(count == 2)
 		panwrap_log("\t<%f, %f>,\n", p[0], p[1]);
@@ -323,7 +323,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 		fwrite(shader, 1, 0x880 - 0x540, fp);
 		free(fn);
 		fclose(fp);
-		
+
 		/* Trace attribute based on metadata */
 		uint64_t s = v->attribute_meta;
 

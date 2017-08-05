@@ -128,7 +128,7 @@ static void submit_job_internal(int fd, struct mali_jd_atom_v2 *atoms, size_t co
 		.nr_atoms = count,
 		.stride = sizeof(struct mali_jd_atom_v2)
 	};
-	
+
 	m_ioctl(fd, submit, MALI_IOCTL_JOB_SUBMIT);
 }
 

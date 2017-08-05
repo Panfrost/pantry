@@ -34,13 +34,13 @@ int main()
 	stream_create(fd, "malitl_339_0x53f78");
 
 	uint64_t scratchpad = alloc_gpu_pages(fd, 8, 0xC);
-	uint64_t heap_free_address = alloc_gpu_heap(fd, 0x8000);	
+	uint64_t heap_free_address = alloc_gpu_heap(fd, 0x8000);
 
 	printf("Allocated what we need..\n");
 
 	// size_t fb_size = 29 * 16 * 45 * 16 * 4 * 2;
 	// uint64_t framebuffer = (uint64_t) (uint32_t) galloc(fb_size);
-	
+
 	/* Fake framebuffer to trap accesses */
 	uint64_t framebuffer = 0x1CAFE0000;
 

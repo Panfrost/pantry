@@ -168,16 +168,16 @@ uint32_t upload_vertices(float *vertices, size_t sz)
 {
 	struct attribute_buffer *vb;
 	vb = (struct attribute_buffer*) galloc(sizeof(*vb));
-	
+
 	float *verts = (float*) galloc(sz);
 	memcpy(verts, vertices, sz);
 	vb->elements = (uint64_t) (uintptr_t) verts;
 
-	vb->element_size = sizeof(float) * XYZ_COMPONENT_COUNT; 
+	vb->element_size = sizeof(float) * XYZ_COMPONENT_COUNT;
 	vb->total_size = sz;
 
 	vb->elements |= 1; /* TODO flags */
-	
+
 	return (uint32_t) vb;
 }
 
@@ -257,9 +257,9 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 	/* I have *no* idea */
 
 	uint64_t pi[] = {
-		0x0000000017E49000, 0x0000000017E49000, 
-		0x0000000017E49000, 0x0000000017E49000, 
-		0x00000000179A2200, 0x0000000017E49000, 
+		0x0000000017E49000, 0x0000000017E49000,
+		0x0000000017E49000, 0x0000000017E49000,
+		0x00000000179A2200, 0x0000000017E49000,
 		0x0000000017E49000
 	};
 

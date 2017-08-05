@@ -709,7 +709,7 @@ ioctl_decode_post_mem_alias(unsigned long int request, void *ptr)
 	panwrap_log("\tva_pages = %lld\n", args->va_pages);
 }
 
-static inline void 
+static inline void
 ioctl_decode_post_sync(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_sync *args = ptr;
