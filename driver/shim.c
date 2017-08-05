@@ -29,6 +29,14 @@ int ioctl(int fd, int request, ...);
 int open_kernel_module()
 {
 	int fd = open("/dev/mali0", O_RDWR | O_CLOEXEC);
+	uint8_t *mtp;
+	struct mali_ioctl_get_version check = {
+		.major = /* MALI_UK_VERSION_MAJOR */ 0x8,
+		.minor = /* MALI_UK_VERSION_MINOR */ 0x4,
+	};
+	struct mali_ioctl_set_flags flags = {
+		.create_flags = MALI_CONTEXT_CREATE_FLAG_NONE
+	};
 
 	if (fd == -1) {
 		printf("Failed to open /dev/mali0\n");
@@ -36,30 +44,17 @@ int open_kernel_module()
 	}
 
 	/* Declare the ABI version (handshake 1/3) */
-
-	struct mali_ioctl_get_version check = {
-		.major = /* MALI_UK_VERSION_MAJOR */ 0x8,
-		.minor = /* MALI_UK_VERSION_MINOR */ 0x4,
-	};
-
 	m_ioctl(fd, check, MALI_IOCTL_GET_VERSION);
 
 	/* Map the Memmap Tracking Handle (handshake 2/3) */
-
-	uint8_t *mtp = mmap(NULL, PAGE_SIZE, PROT_NONE, MAP_SHARED, fd,
-				MALI_MEM_MAP_TRACKING_HANDLE);
-
+	*mtp = mmap(NULL, PAGE_SIZE, PROT_NONE, MAP_SHARED, fd,
+		    MALI_MEM_MAP_TRACKING_HANDLE);
 	if (mtp == MAP_FAILED) {
 		printf("MP map failed (%s)\n", strerror(errno));
 		return -1;
 	}
 
 	/* Declare special flags (handshake 3/3) */
-
-	struct mali_ioctl_set_flags flags = {
-		.create_flags = MALI_CONTEXT_CREATE_FLAG_NONE
-	};
-
 	m_ioctl(fd, flags, MALI_IOCTL_SET_FLAGS);
 
 	return fd;
@@ -83,7 +78,9 @@ uint64_t alloc_gpu_pages(int fd, int pages, int e_flags)
 	/* Only necessary when we report old versions */
 
 	if (e_flags & MALI_MEM_SAME_VA)  {
-		return (uint32_t) mmap64(NULL, pages << PAGE_SHIFT, PROT_READ | PROT_WRITE, MAP_SHARED, fd, alloc.gpu_va);
+		return (uint32_t) mmap64(
+		    NULL, pages << PAGE_SHIFT, PROT_READ | PROT_WRITE,
+		    MAP_SHARED, fd, alloc.gpu_va);
 	} else {
 		return alloc.gpu_va;
 	}
@@ -106,6 +103,7 @@ uint64_t alloc_gpu_heap(int fd, int pages)
 void free_gpu(int fd, uint64_t addr)
 {
 	struct mali_ioctl_mem_free gfree = { .gpu_addr = addr };
+
 	m_ioctl(fd, gfree, MALI_IOCTL_MEM_FREE);
 }
 
@@ -160,8 +158,8 @@ void submit_job(int fd, struct mali_jd_atom_v2 atom)
 uint8_t* mmap_gpu(int fd, uint64_t addr, int page_count)
 {
 	uint8_t* buffer = mmap64(NULL, page_count << PAGE_SHIFT,
-				PROT_READ | PROT_WRITE, MAP_SHARED,
-				fd, addr);
+				 PROT_READ | PROT_WRITE, MAP_SHARED,
+				 fd, addr);
 
 	if (buffer == MAP_FAILED) {
 		printf("Buffer map failed (%s)\n", strerror(errno));

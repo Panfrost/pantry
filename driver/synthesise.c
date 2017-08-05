@@ -33,14 +33,12 @@ struct mali_jd_dependency no_dependency = {
 struct job_descriptor_header* set_value_helper(uint64_t out)
 {
 	void* packet = galloc(sizeof(struct job_descriptor_header) +
-			sizeof(struct payload_set_value));
-
+			      sizeof(struct payload_set_value));
 	struct job_descriptor_header header = {
 		.exception_status = JOB_NOT_STARTED,
 		.job_descriptor_size = JOB_64_BIT,
 		.job_type = JOB_TYPE_SET_VALUE
 	};
-
 	struct payload_set_value payload = {
 		.out = out,
 		.unknown = 0x03
@@ -55,6 +53,7 @@ struct job_descriptor_header* set_value_helper(uint64_t out)
 uint64_t make_mfbd(bool tiler, uint64_t heap_free_address, uint64_t scratchpad)
 {
 	struct tentative_mfbd *mfbd = galloc(sizeof(struct tentative_mfbd));
+	uint64_t sab0 = 0x5ABA5ABA;
 
 	mfbd->block2[0] = scratchpad + SV_OFFSET;
 	mfbd->block2[1] = scratchpad + SV_OFFSET + 0x200;
@@ -80,8 +79,6 @@ uint64_t make_mfbd(bool tiler, uint64_t heap_free_address, uint64_t scratchpad)
 	mfbd->block1[8] = tiler ? 0x000000FF : 0xC0210000;
 	mfbd->block1[9] = tiler ? 0x3F800000 : 0x00000000;
 
-	uint64_t sab0 = 0x5ABA5ABA;
-
 	uint64_t block3[] = {
 		0x0000000000000000,
 		0x0000000000030005,
@@ -103,7 +100,7 @@ uint32_t job_chain_fragment(int fd, uint64_t framebuffer,
 		uint64_t heap_free_address, uint64_t scratchpad)
 {
 	void* packet = galloc(sizeof(struct job_descriptor_header)
-			+ sizeof(struct payload_fragment));
+			      + sizeof(struct payload_fragment));
 
 	struct job_descriptor_header header = {
 		.exception_status = JOB_NOT_STARTED,
@@ -150,11 +147,10 @@ uint32_t job_chain_fragment(int fd, uint64_t framebuffer,
 uint64_t import_shader(int fd, uint8_t *shader, size_t sz, bool fragment)
 {
 	int pages = 1 + (sz >> PAGE_SHIFT);
-
-	uint64_t gpu = alloc_gpu_pages(fd, pages, MALI_MEM_PROT_CPU_RD |
-			MALI_MEM_PROT_CPU_WR | MALI_MEM_PROT_GPU_RD |
-			MALI_MEM_PROT_GPU_EX);
-
+	uint64_t gpu = alloc_gpu_pages(
+	    fd, pages,
+	    MALI_MEM_PROT_CPU_RD | MALI_MEM_PROT_CPU_WR | MALI_MEM_PROT_GPU_RD |
+	    MALI_MEM_PROT_GPU_EX);
 	uint8_t *cpu = mmap_gpu(fd, gpu, pages);
 
 	memcpy(cpu, shader, sz);
@@ -166,10 +162,10 @@ uint64_t import_shader(int fd, uint8_t *shader, size_t sz, bool fragment)
 
 uint32_t upload_vertices(float *vertices, size_t sz)
 {
-	struct attribute_buffer *vb;
-	vb = (struct attribute_buffer*) galloc(sizeof(*vb));
+	struct attribute_buffer *vb =
+		(struct attribute_buffer*) galloc(sizeof(*vb));
+	float *verts = galloc(sz);
 
-	float *verts = (float*) galloc(sz);
 	memcpy(verts, vertices, sz);
 	vb->elements = (uint64_t) (uintptr_t) verts;
 
@@ -182,19 +178,20 @@ uint32_t upload_vertices(float *vertices, size_t sz)
 }
 
 struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
-		uint32_t fbd, uint32_t vertex_buffer,
-		uint32_t zero_buffer, uint32_t mode,
-		void *shader, size_t shader_size)
+						  uint32_t fbd,
+						  uint32_t vertex_buffer,
+						  uint32_t zero_buffer,
+						  uint32_t mode,
+						  void *shader,
+						  size_t shader_size)
 {
-	void* packet = galloc(sizeof(struct job_descriptor_header)
-			+ sizeof(struct payload_vertex_tiler32));
-
+	void* packet = galloc(sizeof(struct job_descriptor_header) +
+			      sizeof(struct payload_vertex_tiler32));
 	struct job_descriptor_header header = {
 		.exception_status = JOB_NOT_STARTED,
 		.job_descriptor_size = JOB_32_BIT,
 		.job_type = tiler ? JOB_TYPE_TILER : JOB_TYPE_VERTEX
 	};
-
 	/* TODO */
 	uint32_t mode_gooks = 0x14000000 | (tiler ? (0x030000 | mode) : 0);
 	uint32_t other_gook = tiler ? 0x00000003 : 0x00000000;
@@ -351,27 +348,25 @@ struct job_descriptor_header* vertex_tiler_helper(int fd, bool tiler,
 	return packet;
 }
 
-uint32_t job_chain_vertex_tiler(int fd,
-		float *vertices, size_t vertex_size, int mode,
-		void* vertex_shader, size_t vs_sz,
-		void *fragment_shader, size_t fs_sz,
-		uint64_t heap_free_address, uint64_t scratchpad)
+uint32_t job_chain_vertex_tiler(int fd, float *vertices, size_t vertex_size,
+				int mode, void* vertex_shader, size_t vs_sz,
+				void *fragment_shader, size_t fs_sz,
+				uint64_t heap_free_address, uint64_t scratchpad)
 {
 	uint32_t vertex_buffer = upload_vertices(vertices, vertex_size);
-	uint32_t vertex_fbd = (uint32_t) make_mfbd(true, heap_free_address, scratchpad);
-
-	uint32_t zero_buffer = (uint32_t) alloc_gpu_pages(fd, 0x20,
-			0x3800 | MALI_MEM_PROT_CPU_RD |
-			MALI_MEM_PROT_CPU_WR | MALI_MEM_PROT_GPU_RD);
-
-	struct job_descriptor_header *set = set_value_helper(scratchpad + SV_OFFSET);
-
+	uint32_t vertex_fbd = (uint32_t) make_mfbd(true, heap_free_address,
+						   scratchpad);
+	uint32_t zero_buffer = (uint32_t) alloc_gpu_pages(
+	    fd, 0x20,
+	    0x3800 | MALI_MEM_PROT_CPU_RD | MALI_MEM_PROT_CPU_WR |
+	    MALI_MEM_PROT_GPU_RD);
+	struct job_descriptor_header *set =
+		set_value_helper(scratchpad + SV_OFFSET);
 	struct job_descriptor_header *vertex =
 		vertex_tiler_helper(fd, false,
 				vertex_fbd, vertex_buffer,
 				zero_buffer, mode,
 				vertex_shader, vs_sz);
-
 	struct job_descriptor_header *tiler =
 		vertex_tiler_helper(fd, true,
 				vertex_fbd, vertex_buffer,
@@ -393,8 +388,9 @@ uint32_t job_chain_vertex_tiler(int fd,
 		.jc = (uint32_t) set,
 		.ext_res_list = NULL,
 		.nr_ext_res = 0,
-		.core_req = MALI_JD_REQ_CS | MALI_JD_REQ_T
-			| MALI_JD_REQ_CF | MALI_JD_REQ_COHERENT_GROUP,
+		.core_req =
+			MALI_JD_REQ_CS | MALI_JD_REQ_T | MALI_JD_REQ_CF |
+			MALI_JD_REQ_COHERENT_GROUP,
 		.atom_number = ++atom_count,
 		.prio = MALI_JD_PRIO_MEDIUM,
 		.device_nr = 0,
@@ -407,9 +403,14 @@ uint32_t job_chain_vertex_tiler(int fd,
 }
 
 void job_chain_replay(int fd, uint32_t tiler_jc, uint32_t fragment_jc,
-		uint64_t heap_free_address, uint64_t framebuffer)
+		      uint64_t heap_free_address, uint64_t framebuffer)
 {
 	struct mali_jd_replay_payload *payload;
+	struct mali_jd_dependency depFragment = {
+		.atom_id = atom_count,
+		.dependency_type = MALI_JD_DEP_TYPE_DATA
+	};
+	uint64_t *resource;
 
 	payload = (struct mali_jd_replay_payload*) galloc(sizeof(*payload));
 
@@ -422,19 +423,16 @@ void job_chain_replay(int fd, uint32_t tiler_jc, uint32_t fragment_jc,
 	payload->tiler_core_req = MALI_JD_REQ_T | MALI_JD_REQ_COHERENT_GROUP;
 	payload->fragment_core_req = MALI_JD_REQ_FS;
 
-	struct mali_jd_dependency depFragment = {
-		.atom_id = atom_count,
-		.dependency_type = MALI_JD_DEP_TYPE_DATA
-	};
 
-	uint64_t* resource = malloc(sizeof(u64) * 1);
+	resource = malloc(sizeof(u64) * 1);
 	resource[0] = framebuffer | MALI_EXT_RES_ACCESS_EXCLUSIVE;
 
 	struct mali_jd_atom_v2 job = {
 		.jc = (uint32_t) payload,
 		.ext_res_list = (struct mali_external_resource*)resource,
 		.nr_ext_res = 1,
-		.core_req = MALI_JD_REQ_EXTERNAL_RESOURCES | MALI_JD_REQ_SOFT_REPLAY,
+		.core_req =
+			MALI_JD_REQ_EXTERNAL_RESOURCES | MALI_JD_REQ_SOFT_REPLAY,
 		.atom_number = ++atom_count,
 		.prio = MALI_JD_PRIO_LOW,
 		.device_nr = 0,

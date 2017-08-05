@@ -10,10 +10,11 @@ uint32_t cbma_top;
 
 void init_cbma(int fd)
 {
-	cbma_bottom = alloc_gpu_pages(fd, CBMA_PAGES,
-			MALI_MEM_PROT_CPU_RD | MALI_MEM_PROT_CPU_WR |
-			MALI_MEM_PROT_GPU_RD | MALI_MEM_PROT_GPU_WR |
-			MALI_MEM_SAME_VA); cbma_top = cbma_bottom;
+	cbma_bottom = alloc_gpu_pages(
+	    fd, CBMA_PAGES,
+	    MALI_MEM_PROT_CPU_RD | MALI_MEM_PROT_CPU_WR | MALI_MEM_PROT_GPU_RD |
+	    MALI_MEM_PROT_GPU_WR | MALI_MEM_SAME_VA);
+	cbma_top = cbma_bottom;
 	memset((void*) cbma_bottom, 0, CBMA_PAGES << PAGE_SHIFT);
 }
 
