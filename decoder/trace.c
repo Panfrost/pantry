@@ -332,7 +332,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 			asprintf(&fn, "shader_%s.bin",
 				 h->job_type == JOB_TYPE_VERTEX ?
 				 "Vertex" : "Fragment");
-			*fp = fopen(fn, "wb");
+			fp = fopen(fn, "wb");
 			fwrite(shader, 1, 0x880 - 0x540, fp);
 			free(fn);
 			fclose(fp);
