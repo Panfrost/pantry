@@ -18,7 +18,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#ifdef HAVE_USER_H
 #include <sys/user.h>
+#endif
 
 #include <mali-ioctl.h>
 #include <jobs.h>
@@ -42,6 +44,12 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
+/* We don't have PAGE_SIZE at all, provide our own */
+#ifndef PAGE_SIZE
+#define PAGE_SHIFT	12
+#define PAGE_SIZE 	(1 << PAGE_SHIFT)
+#define PAGE_MASK 	(~(PAGE_SIZE - 1))
+#else
 /* Android bionic doesn't have PAGE_SHIFT, define it using __builtin_ffs() if
  * possible, otherwise fallback to slightly slower stdlib ffs
  */
@@ -53,6 +61,7 @@ typedef uint64_t u64;
 #define PAGE_SHIFT (ffs(PAGE_SIZE) - 1)
 #endif /* HAVE_BUILTIN_FFS */
 #endif /* PAGE_SHIFT */
+#endif /* PAGE_SIZE */
 
 /* Thin wrappers around ioctls */
 
