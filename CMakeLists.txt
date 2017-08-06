@@ -66,10 +66,10 @@ option(BUILD_SYNTHESISER "whether to build the synthesiser and prototype" 0)
 
 include_directories("include")
 add_subdirectory(panwrap)
-add_subdirectory(driver)
 add_subdirectory(decoder)
 
 if (BUILD_SYNTHESISER)
+    add_subdirectory(driver)
     add_subdirectory(prototype)
 endif()
 

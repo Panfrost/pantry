@@ -1,9 +1,5 @@
 project(driver)
 
-set(SRCS memory.c shim.c)
-
-if (BUILD_SYNTHESISER)
-	list(APPEND SRCS synthesiser.c)
-endif()
+set(SRCS shim.c memory.c synthesiser.c)
 
 add_library(driver STATIC ${SRCS})
