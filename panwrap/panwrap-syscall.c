@@ -251,12 +251,14 @@ static struct mapped_memory *find_gpu_mapped_mem(uint64_t addr)
 
 void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
 {
+	struct mapped_memory *mem;
+
 	if (!gpu_addr) {
 		panwrap_log("Tried to dereference GPU null!\n");
 		return NULL;
 	}
 
-	struct mapped_memory *mem = find_gpu_mapped_mem(gpu_addr);
+	mem = find_gpu_mapped_mem(gpu_addr);
 
 	if (!mem) {
 		panwrap_log("Unmapped GPU mem %" PRIx64 "\n", gpu_addr);
