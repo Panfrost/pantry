@@ -259,14 +259,14 @@ void *fetch_mapped_gpu(u64 gpu_addr, size_t sz)
 	struct mapped_memory *mem = find_gpu_mapped_mem(gpu_addr);
 
 	if (!mem) {
-		panwrap_log("Unmapped GPU mem %llx\n", gpu_addr);
+		panwrap_log("Unmapped GPU mem %" PRIx64 "\n", gpu_addr);
 
 		return NULL;
 	}
 
 	/* Sanity bounds check */
 	if (gpu_addr - mem->gpu_va + sz > mem->length) {
-		panwrap_log("GPU memory overflow @ %llX\n", gpu_addr);
+		panwrap_log("GPU memory overflow @ %" PRIx64 "\n", gpu_addr);
 		return NULL;
 	}
 
@@ -366,9 +366,9 @@ ioctl_decode_pre_mem_alloc(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_alloc *args = ptr;
 
-	panwrap_log("\tva_pages = %lld\n", args->va_pages);
-	panwrap_log("\tcommit_pages = %lld\n", args->commit_pages);
-	panwrap_log("\textent = 0x%llx\n", args->extent);
+	panwrap_log("\tva_pages = %" PRId64 "\n", args->va_pages);
+	panwrap_log("\tcommit_pages = %" PRId64 "\n", args->commit_pages);
+	panwrap_log("\textent = 0x%" PRIx64 "\n", args->extent);
 
 	panwrap_log("\tflags = ");
 	panwrap_log_decoded_flags(mem_flag_info, args->flags);
@@ -388,7 +388,7 @@ ioctl_decode_pre_mem_import(unsigned long int request, void *ptr)
 	default:                               type = "Invalid"; break;
 	}
 
-	panwrap_log("\tphandle = 0x%llx\n", args->phandle);
+	panwrap_log("\tphandle = 0x%" PRIx64 "\n", args->phandle);
 	panwrap_log("\ttype = %d (%s)\n", args->type, type);
 
 	panwrap_log("\tflags = ");
@@ -401,8 +401,8 @@ ioctl_decode_pre_mem_commit(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_commit *args = ptr;
 
-	panwrap_log("\tgpu_addr = 0x%llx\n", args->gpu_addr);
-	panwrap_log("\tpages = %lld\n", args->pages);
+	panwrap_log("\tgpu_addr = 0x%" PRIx64 "\n", args->gpu_addr);
+	panwrap_log("\tpages = %" PRId64 "\n", args->pages);
 }
 
 static void
@@ -418,7 +418,7 @@ ioctl_decode_pre_mem_query(unsigned long int request, void *ptr)
 	default:                         query_name = "???"; break;
 	}
 
-	panwrap_log("\tgpu_addr = 0x%llx\n", args->gpu_addr);
+	panwrap_log("\tgpu_addr = 0x%" PRIx64 "\n", args->gpu_addr);
 	panwrap_log("\tquery = %d (%s)\n", args->query, query_name);
 }
 
@@ -427,7 +427,7 @@ ioctl_decode_pre_mem_free(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_free *args = ptr;
 
-	panwrap_log("\tgpu_addr = 0x%llx\n", args->gpu_addr);
+	panwrap_log("\tgpu_addr = 0x%" PRIx64 "\n", args->gpu_addr);
 }
 
 static void
@@ -435,11 +435,11 @@ ioctl_decode_pre_mem_flags_change(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_flags_change *args = ptr;
 
-	panwrap_log("\tgpu_va = 0x%llx\n", args->gpu_va);
+	panwrap_log("\tgpu_va = 0x%" PRIx64 "\n", args->gpu_va);
 	panwrap_log("\tflags = ");
 	panwrap_log_decoded_flags(mem_flag_info, args->flags);
 	panwrap_log_cont("\n");
-	panwrap_log("\tmask = 0x%llx\n", args->mask);
+	panwrap_log("\tmask = 0x%" PRIx64 "\n", args->mask);
 }
 
 static void
@@ -450,9 +450,9 @@ ioctl_decode_pre_mem_alias(unsigned long int request, void *ptr)
 	panwrap_log("\tflags = ");
 	panwrap_log_decoded_flags(mem_flag_info, args->flags);
 	panwrap_log_cont("\n");
-	panwrap_log("\tstride = %lld\n", args->stride);
-	panwrap_log("\tnents = %lld\n", args->nents);
-	panwrap_log("\tai = 0x%llx\n", args->ai);
+	panwrap_log("\tstride = %" PRId64 "\n", args->stride);
+	panwrap_log("\tnents = %" PRId64 "\n", args->nents);
+	panwrap_log("\tai = 0x%" PRIx64 "\n", args->ai);
 }
 
 static inline void
@@ -473,7 +473,7 @@ ioctl_decode_pre_sync(unsigned long int request, void *ptr)
 			    (void*) (uintptr_t) args->handle,
 			    (void*) (uintptr_t) args->handle + mem->length,
 			    mem->length);
-		panwrap_log("\tuser_addr = %p - %p (offset=%llu)\n",
+		panwrap_log("\tuser_addr = %p - %p (offset=%" PRIu64 ")\n",
 			    args->user_addr, args->user_addr + args->size,
 			    (u64) (uintptr_t) args->user_addr - (u64) (uintptr_t) args->handle);
 	} else {
@@ -482,7 +482,7 @@ ioctl_decode_pre_sync(unsigned long int request, void *ptr)
 		panwrap_log("\tuser_addr = %p - %p\n",
 			    args->user_addr, args->user_addr + args->size);
 	}
-	panwrap_log("\tsize = %lld\n", args->size);
+	panwrap_log("\tsize = %" PRId64 "\n", args->size);
 	panwrap_log("\ttype = %d (%s)\n", args->type, type);
 
 	if (args->type == MALI_SYNC_TO_DEVICE) {
@@ -537,12 +537,12 @@ ioctl_decode_pre_job_submit(unsigned long int request, void *ptr)
 		const struct mali_jd_atom_v2 *a = &atoms[i];
 		struct mapped_memory *mem;
 
-		panwrap_log("\t\tjc = 0x%llx\n", a->jc);
+		panwrap_log("\t\tjc = 0x%" PRIx64 "\n", a->jc);
 		mem = find_mapped_mem_containing((void*) (uintptr_t) a->jc);
 		if (mem) {
 			off_t offset = (void*) (uintptr_t) a->jc - mem->addr;
 
-			panwrap_log("\t\tAddress %llu bytes inside mmap %p - %p (length=%zd)\n",
+			panwrap_log("\t\tAddress %" PRIu64 " bytes inside mmap %p - %p (length=%zd)\n",
 				    (loff_t) offset, mem->addr, mem->addr + mem->length,
 				    mem->length);
 
@@ -552,12 +552,12 @@ ioctl_decode_pre_job_submit(unsigned long int request, void *ptr)
 			panwrap_log("\t\tERROR! jc contained in unknown memory region, cannot dump\n");
 		}
 
-		panwrap_log("\t\tudata = [0x%llx, 0x%llx]\n",
+		panwrap_log("\t\tudata = [0x%" PRIx64 ", 0x%" PRIx64 "]\n",
 			    a->udata.blob[0], a->udata.blob[1]);
 		panwrap_log("\t\tnr_ext_res = %d\n", a->nr_ext_res);
 
 		if (a->ext_res_list) {
-			panwrap_log("\t\text_res_list.count = %lld\n",
+			panwrap_log("\t\text_res_list.count = %" PRId64 "\n",
 				    a->ext_res_list->count);
 			panwrap_log("\t\tExternal resources:\n");
 
@@ -655,10 +655,10 @@ ioctl_decode_post_mem_alloc(unsigned long int request, void *ptr)
 	const struct mali_ioctl_mem_alloc *args = ptr;
 	struct allocated_memory *new = malloc(sizeof(*new));
 
-	panwrap_log("\tgpu_va = 0x%llx\n", args->gpu_va);
+	panwrap_log("\tgpu_va = 0x%" PRIx64 "\n", args->gpu_va);
 	panwrap_log("\tva_alignment = %d\n", args->va_alignment);
 
-	panwrap_log("\tflags = %llx", args->flags);
+	panwrap_log("\tflags = %" PRIx64, args->flags);
 
 	new->gpu_va = args->gpu_va;
 	new->same_va = args->flags & MALI_MEM_SAME_VA;
@@ -672,8 +672,8 @@ ioctl_decode_post_mem_import(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_import *args = ptr;
 
-	panwrap_log("\tgpu_va = 0x%llx\n", args->gpu_va);
-	panwrap_log("\tva_pages = %lld\n", args->va_pages);
+	panwrap_log("\tgpu_va = 0x%" PRIx64 "\n", args->gpu_va);
+	panwrap_log("\tva_pages = %" PRId64 "\n", args->va_pages);
 	panwrap_log("\tflags = ");
 	panwrap_log_decoded_flags(mem_flag_info, args->flags);
 	panwrap_log_cont("\n");
@@ -697,7 +697,7 @@ ioctl_decode_post_mem_query(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_query *args = ptr;
 
-	panwrap_log("\tvalue = 0x%llx\n", args->value);
+	panwrap_log("\tvalue = 0x%" PRIx64 "\n", args->value);
 }
 
 static void
@@ -705,8 +705,8 @@ ioctl_decode_post_mem_alias(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_mem_alias *args = ptr;
 
-	panwrap_log("\tgpu_va = 0x%llx\n", args->gpu_va);
-	panwrap_log("\tva_pages = %lld\n", args->va_pages);
+	panwrap_log("\tgpu_va = 0x%" PRIx64 "\n", args->gpu_va);
+	panwrap_log("\tva_pages = %" PRId64 "\n", args->va_pages);
 }
 
 static inline void
@@ -749,7 +749,7 @@ ioctl_decode_post_gpu_props_reg_dump(unsigned long int request, void *ptr)
 	for (unsigned int i = 0; i < ARRAY_SIZE(args->core.texture_features); i++)
 		panwrap_log("\t\t\t%010x\n", args->core.texture_features[i]);
 
-	panwrap_log("\t\tAvailable memory: %lld bytes\n",
+	panwrap_log("\t\tAvailable memory: %" PRId64 " bytes\n",
 		    args->core.gpu_available_memory_size);
 
 	panwrap_log("\tL2 cache:\n");
@@ -813,7 +813,7 @@ ioctl_decode_post_gpu_props_reg_dump(unsigned long int request, void *ptr)
 	panwrap_log("\t\tFeatures: 0x%x\n", args->coherency_info.coherency);
 	panwrap_log("\t\tGroups:\n");
 	for (unsigned int i = 0; i < args->coherency_info.num_groups; i++) {
-		panwrap_log("\t\t\t- Core mask: %010llx\n",
+		panwrap_log("\t\t\t- Core mask: %010" PRIx64 "\n",
 			    args->coherency_info.group[i].core_mask);
 		panwrap_log("\t\t\t  Number of cores: %d\n",
 			    args->coherency_info.group[i].num_cores);
@@ -833,7 +833,7 @@ ioctl_decode_post_get_context_id(unsigned long int request, void *ptr)
 {
 	const struct mali_ioctl_get_context_id *args = ptr;
 
-	panwrap_log("\tid = 0x%llx\n", args->id);
+	panwrap_log("\tid = 0x%" PRIx64 "\n", args->id);
 }
 
 static void
@@ -1044,10 +1044,10 @@ static inline void *panwrap_mmap_wrap(mmap_func *func,
 
 	if (found) {
 		new->gpu_va = same_va ? (u64) (uintptr_t) ret : (u64) offset;
-		panwrap_log("GPU memory 0x%llx mapped to %p - %p length=%zu\n",
+		panwrap_log("GPU memory 0x%" PRIx64 " mapped to %p - %p length=%zu\n",
 			    offset, ret, ret + length, length);
 	} else {
-		panwrap_log("Unknown memory mapping %p - %p: offset=%lld length=%zu prot = ",
+		panwrap_log("Unknown memory mapping %p - %p: offset=%" PRId64 " length=%zu prot = ",
 			    ret, ret + length, offset, length);
 		panwrap_log_decoded_flags(mmap_prot_flag_info, prot);
 		panwrap_log_cont(" flags = ");
@@ -1098,7 +1098,7 @@ int munmap(void *addr, size_t length)
 
 	/* Was it memory mapped from the GPU? */
 	if (mem->gpu_va)
-		panwrap_log("Unmapped GPU memory 0x%llx@%p\n",
+		panwrap_log("Unmapped GPU memory 0x%" PRIx64 "@%p\n",
 			    mem->gpu_va, mem->addr);
 	else
 		panwrap_log("Unmapped unknown memory %p\n",

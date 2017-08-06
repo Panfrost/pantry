@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <pandriver.h>
 #include <pantrace.h>
 
@@ -29,13 +30,13 @@ static void assert_gpu_same(uint64_t addr, size_t s, uint8_t *synth)
 	uint8_t *buffer = fetch_mapped_gpu(addr, s);
 
 	if (!buffer) {
-		panwrap_log("Bad allocation in assert %llX\n", addr);
+		panwrap_log("Bad allocation in assert %" PRIx64 "\n", addr);
 		return;
 	}
 
 	for (unsigned int i = 0; i < s; ++i) {
 		if (buffer[i] != synth[i]) {
-			panwrap_log("At %llX, expected:\n", addr);
+			panwrap_log("At %" PRIX64 ", expected:\n", addr);
 			panwrap_log_hexdump_trimmed(synth, s, "\t\t");
 			panwrap_log("Instead got:\n");
 			panwrap_log_hexdump_trimmed(buffer, s, "\t\t");
@@ -48,7 +49,7 @@ static void assert_gpu_same(uint64_t addr, size_t s, uint8_t *synth)
 static void assert_gpu_zeroes(uint64_t addr, size_t s)
 {
 	uint8_t *zero = calloc(s, 1);
-	printf("Zero address %LX\n", addr);
+	printf("Zero address %" PRIX64 "\n", addr);
 	assert_gpu_same(addr, s, zero);
 	free(zero);
 }
@@ -64,7 +65,7 @@ static void quick_dump_gpu(uint64_t addr, size_t s)
 
 	buf = fetch_mapped_gpu(addr, s);
 
-	panwrap_log("Quick GPU dump (%llX)\n", addr);
+	panwrap_log("Quick GPU dump (%" PRIX64 ")\n", addr);
 
 	if (!buf) {
 		panwrap_log("Not found\n");
@@ -123,7 +124,7 @@ static void chai_trace_fbd(uint32_t fbd)
 
 	panwrap_log("MFBD @ %X (%X)\n",
 		    fbd & FBD_POINTER_MASK, fbd & ~FBD_POINTER_MASK);
-	panwrap_log("MFBD flags %X, heap free address %llX\n",
+	panwrap_log("MFBD flags %X, heap free address %" PRIX64 "\n",
 		    mfbd->flags, mfbd->heap_free_address);
 
 	panwrap_log_hexdump_trimmed((uint8_t *) mfbd->block1,
@@ -157,13 +158,13 @@ static void chai_trace_fbd(uint32_t fbd)
 	 * pointless.
 	 */
 
-	panwrap_log("ugaT %llX, uga %llX\n",
+	panwrap_log("ugaT %" PRIX64 ", uga %" PRIX64 "\n",
 		    mfbd->ugaT, mfbd->unknown_gpu_address);
-	panwrap_log("ugan %llX\n", mfbd->unknown_gpu_addressN);
+	panwrap_log("ugan %" PRIX64 "\n", mfbd->unknown_gpu_addressN);
 	buf = fetch_mapped_gpu(mfbd->unknown_gpu_addressN, 64);
 	panwrap_log_hexdump_trimmed(buf, 64, "\t\t");
 
-	panwrap_log("unk1 %X, b1 %llX, b2 %llX, unk2 %llX, unk3 %llX, blah %llX\n",
+	panwrap_log("unk1 %X, b1 %" PRIX64 ", b2 %" PRIX64 ", unk2 %" PRIX64 ", unk3 %" PRIX64 ", blah %" PRIX64 "\n",
 		    mfbd->unknown1,
 		    mfbd->block2[0],
 		    mfbd->block2[1],
@@ -214,7 +215,7 @@ static void chai_trace_vecN(float *p, size_t count)
 	else if (count == 4)
 		panwrap_log("\t<%f, %f, %f, %f>,\n", p[0], p[1], p[2], p[3]);
 	else
-		panwrap_log("Cannot print vec%d\n", count);
+		panwrap_log("Cannot print vec%zu\n", count);
 }
 
 //#include "shim.c"
@@ -242,7 +243,7 @@ static void chai_trace_attribute(uint64_t address)
 
 	p = v = fetch_mapped_gpu(raw, vb->total_size);
 
-	panwrap_log("attribute vec%d mem%llXflag%llX = {\n",
+	panwrap_log("attribute vec%zu mem%" PRIX64 "flag%" PRIX64 " = {\n",
 		    component_count, raw, flags);
 
 	for (unsigned int i = 0; i < vertex_count; i++, p += component_count) {
@@ -268,11 +269,11 @@ static void chai_trace_hw_chain(uint64_t chain)
 	/* Trace descriptor */
 	h = fetch_mapped_gpu(chain, sizeof(*h));
 	if (!h) {
-		panwrap_log("Failed to map the job chain %llX\n\n", chain);
+		panwrap_log("Failed to map the job chain %" PRIX64 "\n\n", chain);
 		return;
 	}
 
-	panwrap_log("%s job, %d-bit, status %X, incomplete %X, fault %llX, barrier %d, index %hX, dependencies (%hX, %hX)\n",
+	panwrap_log("%s job, %d-bit, status %X, incomplete %X, fault %" PRIX64 ", barrier %d, index %hX, dependencies (%hX, %hX)\n",
 		    chai_job_type_name(h->job_type),
 		    h->job_descriptor_size ? 64 : 32,
 		    h->exception_status,
@@ -291,7 +292,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 			struct payload_set_value *s;
 
 			s = fetch_mapped_gpu(payload, sizeof(*s));
-			panwrap_log("set value -> %llX (%llX)\n",
+			panwrap_log("set value -> %" PRIX64 " (%" PRIX64 ")\n",
 				    s->out, s->unknown);
 			break;
 		}
@@ -319,7 +320,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 
 			i_shader = fetch_mapped_gpu(v->shader, sizeof(u64));
 
-			panwrap_log("%s shader @ %llX (flags %llX)\n",
+			panwrap_log("%s shader @ %" PRIX64 " (flags %" PRIX64 ")\n",
 				    h->job_type == JOB_TYPE_VERTEX ?
 				    "Vertex" : "Fragment",
 				    *i_shader & ~15, *i_shader & 15);
@@ -347,7 +348,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 				if (!HAS_ATTRIBUTE(*attr_meta))
 					break;
 
-				panwrap_log("Attribute %llX (flags %llX)\n",
+				panwrap_log("Attribute %" PRIX64 " (flags %" PRIX64 ")\n",
 					    ATTRIBUTE_NO(*attr_meta),
 					    ATTRIBUTE_FLAGS(*attr_meta));
 
@@ -423,7 +424,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 					uint8_t *sbuf =
 						fetch_mapped_gpu(sub, 64);
 
-					panwrap_log("--- %llX\n", sub);
+					panwrap_log("--- %" PRIX64 "\n", sub);
 					panwrap_log_hexdump_trimmed(
 					    sbuf, 64, "\t\t");
 				}
@@ -458,7 +459,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 		 * TODO: Research.
 		 */
 
-		panwrap_log("frag %X %X (%d, %d) -> (%d, %d), fbd type %cFBD at %llX (%llX) \n",
+		panwrap_log("frag %X %X (%d, %d) -> (%d, %d), fbd type %cFBD at %" PRIX64 " (%" PRIX64 ") \n",
 				f->min_tile_coord, f->max_tile_coord,
 				TILE_COORD_X(f->min_tile_coord),
 				TILE_COORD_Y(f->min_tile_coord),
@@ -474,7 +475,7 @@ static void chai_trace_hw_chain(uint64_t chain)
 	}
 
 	default:
-		panwrap_log("Dumping payload %llX for job type %s\n",
+		panwrap_log("Dumping payload %" PRIX64 " for job type %s\n",
 			    payload,
 			    chai_job_type_name(h->job_type));
 
@@ -500,8 +501,8 @@ void chai_trace_atom(const struct mali_jd_atom_v2 *v)
 				fetch_mapped_gpu(v->jc, sizeof(*payload));
 
 			panwrap_log(
-			    "tiler_jc_list = %llX, fragment_jc = %llX, \nt "
-			    "tiler_heap_free = %llX, fragment hierarchy mask = %hX, "
+			    "tiler_jc_list = %" PRIX64 ", fragment_jc = %" PRIX64 ", \nt "
+			    "tiler_heap_free = %" PRIX64 ", fragment hierarchy mask = %hX, "
 			    "tiler hierachy mask = %hX, hierarchy def weight %X, "
 			    "tiler core_req = %X, fragment core_req = %X",
 			    payload->tiler_jc_list,

@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <time.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include "panwrap.h"
 
 #define HEXDUMP_COL_LEN  4
@@ -39,7 +40,7 @@ panwrap_log_decoded_flags(const struct panwrap_flag_info *flag_info,
 {
 	bool decodable_flags_found = false;
 
-	panwrap_log_cont("0x%llx", flags);
+	panwrap_log_cont("0x%" PRIx64, flags);
 
 	for (int i = 0; flag_info[i].name; i++) {
 		if ((flags & flag_info[i].flag) != flag_info[i].flag)
@@ -59,7 +60,7 @@ panwrap_log_decoded_flags(const struct panwrap_flag_info *flag_info,
 
 	if (decodable_flags_found) {
 		if (flags)
-			panwrap_log_cont(" | 0x%llx", flags);
+			panwrap_log_cont(" | 0x%" PRIx64, flags);
 
 		panwrap_log_cont(")");
 	}
