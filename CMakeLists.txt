@@ -82,11 +82,15 @@ endif()
 
 # Configurable project options options
 option(PRECOMPILED_SHADER "whether to use precompiled shaders" 0)
+option(BUILD_SYNTHESISER "whether to build the synthesiser and prototype" 0)
 
 include_directories("include")
-add_subdirectory(prototype)
 add_subdirectory(panwrap)
 add_subdirectory(driver)
 add_subdirectory(decoder)
+
+if (BUILD_SYNTHESISER)
+    add_subdirectory(prototype)
+endif()
 
 # vim: tabstop=4 softtabstop=4 shiftwidth=4 expandtab :

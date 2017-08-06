@@ -179,7 +179,7 @@ static const struct panwrap_flag_info mmap_prot_flag_info[] = {
 
 /* Fix issue building for Linux */
 
-#ifndef MAP_UNINITIALZED
+#ifndef MAP_UNINITIALIZED
 #define MAP_UNINITIALIZED 0xDEADBEEF
 #endif
 
