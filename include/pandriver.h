@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/user.h>
 
 #include <mali-ioctl.h>
 #include <jobs.h>
@@ -41,12 +42,17 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-/* MMU-related defines, normally present in Linux, but absent here.
- * See arch/arm/include/asm/page.h in the Linux tree */
-
-#define PAGE_SHIFT	12
-#define PAGE_SIZE 	(1 << PAGE_SHIFT)
-#define PAGE_MASK 	(~(PAGE_SIZE - 1))
+/* Android bionic doesn't have PAGE_SHIFT, define it using __builtin_ffs() if
+ * possible, otherwise fallback to slightly slower stdlib ffs
+ */
+#ifndef PAGE_SHIFT
+#ifdef HAVE_BUILTIN_FFS
+#define PAGE_SHIFT (__builtin_ffs(PAGE_SIZE) - 1)
+#else
+#include <strings.h>
+#define PAGE_SHIFT (ffs(PAGE_SIZE) - 1)
+#endif /* HAVE_BUILTIN_FFS */
+#endif /* PAGE_SHIFT */
 
 /* Thin wrappers around ioctls */
 
