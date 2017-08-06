@@ -54,8 +54,8 @@ int open_kernel_module()
 	m_ioctl(fd, check, MALI_IOCTL_GET_VERSION);
 
 	/* Map the Memmap Tracking Handle (handshake 2/3) */
-	*mtp = mmap(NULL, PAGE_SIZE, PROT_NONE, MAP_SHARED, fd,
-		    MALI_MEM_MAP_TRACKING_HANDLE);
+	mtp = mmap(NULL, PAGE_SIZE, PROT_NONE, MAP_SHARED, fd,
+		   MALI_MEM_MAP_TRACKING_HANDLE);
 	if (mtp == MAP_FAILED) {
 		printf("MP map failed (%s)\n", strerror(errno));
 		return -1;
