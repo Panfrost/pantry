@@ -215,7 +215,7 @@ static const struct panwrap_flag_info mali_jd_dep_type_flag_info[] = {
 
 static struct mapped_memory *find_mapped_mem(void *addr)
 {
-	struct mapped_memory *pos;
+	struct mapped_memory *pos = NULL;
 
 	list_for_each_entry(pos, &mmaps, node) {
 		if (pos->addr == addr)
@@ -227,7 +227,7 @@ static struct mapped_memory *find_mapped_mem(void *addr)
 
 static struct mapped_memory *find_mapped_mem_containing(void *addr)
 {
-	struct mapped_memory *pos;
+	struct mapped_memory *pos = NULL;
 
 	list_for_each_entry(pos, &mmaps, node) {
 		if (addr >= pos->addr && addr <= pos->addr + pos->length)
@@ -239,7 +239,7 @@ static struct mapped_memory *find_mapped_mem_containing(void *addr)
 
 static struct mapped_memory *find_gpu_mapped_mem(uint64_t addr)
 {
-	struct mapped_memory *pos;
+	struct mapped_memory *pos = NULL;
 
 	list_for_each_entry(pos, &mmaps, node) {
 		if (addr >= pos->gpu_va && addr <= pos->gpu_va + pos->length)
@@ -1012,7 +1012,7 @@ static inline void *panwrap_mmap_wrap(mmap_func *func,
 				      void *addr, size_t length, int prot,
 				      int flags, int fd, loff_t offset)
 {
-	struct allocated_memory *pos;
+	struct allocated_memory *pos = NULL;
 	struct mapped_memory *new;
 	void *ret;
 	bool found = false;
