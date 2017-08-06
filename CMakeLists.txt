@@ -86,5 +86,7 @@ option(PRECOMPILED_SHADER "whether to use precompiled shaders" 0)
 include_directories("include")
 add_subdirectory(prototype)
 add_subdirectory(panwrap)
+add_subdirectory(driver)
+add_subdirectory(decoder)
 
 # vim: tabstop=4 softtabstop=4 shiftwidth=4 expandtab :

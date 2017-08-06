@@ -1,5 +1,6 @@
 project(panwrap)
 
-set(SRCS panwrap-syscall.c panwrap-util.c ../decoder/trace.c)
+set(SRCS panwrap-syscall.c panwrap-util.c)
 
 add_library(panwrap SHARED ${SRCS})
+target_link_libraries(panwrap driver decoder)
