@@ -19,12 +19,19 @@ int ioctl(int fd, int request, ...);
 #include <sys/ioctl.h>
 #endif
 
-#define m_ioctl(fd, data, ioc) \
+#define __m_ioctl(fd, data, ioc) \
 	data.header.id = ((_IOC_TYPE(ioc) & 0xF) << 8) | _IOC_NR(ioc); \
 	if (ioctl(fd, ioc, &data)) { \
 		printf("Bad ioctl %d (%s)\n", ioc, strerror(errno)); \
 		exit(1); \
 	}
+
+/* Typecast m_ioctl args properly if we're dealing with crappy bionic */
+#ifdef __BIONIC__
+#define m_ioctl(fd, data, ioc) __m_ioctl(fd, data, ((int)ioc))
+#else
+#define m_ioctl(fd, data, ioc) __m_ioctl(fd, data, ioc)
+#endif
 
 int open_kernel_module()
 {
